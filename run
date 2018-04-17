@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "a.out tests/start1.txt tests/goal1.txt bfs output.txt"
+a.out tests/start1.txt tests/goal1.txt bfs output.txt
