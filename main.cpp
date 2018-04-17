@@ -5,12 +5,11 @@
 using namespace std;
 
 struct Bank {
-    unsigned int num_wolves, num_chickens;
+    unsigned int num_wolves, num_chickens, boat;
 };
 
 struct State {
     Bank left, right;
-    unsigned int boat;
 };
 
 // <initial state file> <goal state file> <mode> <output file>
