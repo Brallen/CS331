@@ -64,11 +64,12 @@ int main(int argc, char** argv)
 
 void file_to_state(State& i_state, State& g_state, ifstream& init, ifstream& goal)
 {
-    init >> i_state.left.num_chickens; init >> i_state.left.num_wolves; init >> i_state.left.boat;
-    init >> i_state.right.num_chickens; init >> i_state.right.num_wolves; init >> i_state.right.boat;
+    char a, b; //Dummy variables
+    init >> i_state.left.num_chickens>> a >> i_state.left.num_wolves >> b >> i_state.left.boat;
+    init >> i_state.right.num_chickens >> a >> i_state.right.num_wolves >> b >> i_state.right.boat;
 
-    goal >> g_state.left.num_chickens; goal >> g_state.left.num_wolves; goal >> g_state.left.boat;
-    goal >> g_state.right.num_chickens; goal >> g_state.right.num_wolves; goal >> g_state.right.boat;
+    goal >> g_state.left.num_chickens >> a >> g_state.left.num_wolves >> b >> g_state.left.boat;
+    goal >> g_state.right.num_chickens >> a >> g_state.right.num_wolves >> b >> g_state.right.boat;
 }
 
 void show_state(State s)
