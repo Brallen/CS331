@@ -1,10 +1,11 @@
 #include <iostream>
 #include <stdio.h>
+#include <stdlib.h>
 
 using namespace std;
 
 // <initial state file> <goal state file> <mode> <output file>
-int main(int argc, char* argv[])
+int main(int argc, char** argv)
 {
     //Initialize command line argument buffers
     string state_file, goal_state_file, mode, output_file;
