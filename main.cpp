@@ -4,6 +4,15 @@
 
 using namespace std;
 
+struct Bank {
+    unsigned int num_wolves, num_chickens;
+};
+
+struct State {
+    Bank left, right;
+    unsigned int boat;
+};
+
 // <initial state file> <goal state file> <mode> <output file>
 int main(int argc, char** argv)
 {
