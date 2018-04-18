@@ -1,3 +1,9 @@
+////////////////////////////////////////////////////////////////////////////
+//  Jonathan Jones (jonesjon) and Brett Case (casebr)
+//  Programming Assignment 1
+//  CS331 Intro to Artificial Intelligence Spring2018
+////////////////////////////////////////////////////////////////////////////
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -24,6 +30,7 @@ void bfs();
 void dfs();
 void iddfs();
 void astar();
+
 void file_to_state(State&, State&, ifstream&, ifstream&);
 void show_state(State);
 void write_state_to_file(State);
@@ -58,11 +65,20 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    //Fill initial and goal states
     file_to_state(initial, goal, init_f, goal_f);
 
     return 0;
 }
 
+/***************************************************************
+ * Function: file_to_state
+ * Description: Reads from provided input streams into the initial and goal states
+ * Params: initial state, goal state, initial file stream, goal file stream
+ * Returns: none
+ * Pre-Conditions: Streams are open
+ * Post-Conditions: States are filled
+ **************************************************************/
 void file_to_state(State& i_state, State& g_state, ifstream& init, ifstream& goal)
 {
     char a, b; //Dummy variables
@@ -73,18 +89,42 @@ void file_to_state(State& i_state, State& g_state, ifstream& init, ifstream& goa
     goal >> g_state.right.num_chickens >> a >> g_state.right.num_wolves >> b >> g_state.right.boat;
 }
 
+/***************************************************************
+ * Function: show_state
+ * Description: Prints the state to stdout
+ * Params: State to be printed
+ * Returns: None
+ * Pre-Conditions: State contains data
+ * Post-Conditions: None
+ **************************************************************/
 void show_state(State s)
 {
     cout << s.left.num_chickens << s.left.num_wolves << s.left.boat << 
     "," << s.right.num_chickens << s.right.num_wolves << s.right.boat << endl;
 }
 
+/***************************************************************
+ * Function: write_state_to_file
+ * Description: Writes the contents of the state in a formatted manner into the output stream
+ * Params: State to be written to file
+ * Returns: None
+ * Pre-Conditions: State contains data
+ * Post-Conditions: None
+ **************************************************************/
 void write_state_to_file(State s)
 {
     out_f << s.left.num_chickens << "," << s.left.num_wolves << "," << s.left.boat << '\n'
     << s.right.num_chickens << "," << s.right.num_wolves << "," << s.right.boat << '\n' << endl;
 }
 
+/***************************************************************
+ * Function: isValid
+ * Description: Determines the validity of the current state. If there are more wolves than chickens on either bank, the state is invalid.
+ * Params: State to be validated
+ * Returns: True if valid state, false if invalid state
+ * Pre-Conditions: State contains data
+ * Post-Conditions: None
+ **************************************************************/
 bool isValid(State s)
 {
     return ((s.left.num_chickens >= s.left.num_wolves) && (s.right.num_chickens >= s.right.num_wolves));
