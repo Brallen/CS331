@@ -35,7 +35,7 @@ void file_to_state(State&, State&, ifstream&, ifstream&);
 void show_state(State);
 void write_state_to_file(State);
 bool isValid(State);
-
+bool enoughAnimals(State, int);
 //Globals
 ofstream out_f;
 
@@ -128,4 +128,9 @@ void write_state_to_file(State s)
 bool isValid(State s)
 {
     return ((s.left.num_chickens >= s.left.num_wolves) && (s.right.num_chickens >= s.right.num_wolves));
+}
+//pass in the number of animals on the bank and the amount to try to put on the boat
+//to see if this is a valid move
+bool enoughAnimals(int numAnimals, int amountToMove)
+    return numAnimals > amountToMove;
 }
