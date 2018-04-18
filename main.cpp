@@ -146,7 +146,7 @@ void write_state_to_file(State s)
  **************************************************************/
 bool isValid(State s)
 {
-    return ((s.left.num_chickens >= s.left.num_wolves) && (s.right.num_chickens >= s.right.num_wolves));
+    return ((s.left.num_chickens >= s.left.num_wolves && s.left.num_chickens > 0) && (s.right.num_chickens >= s.right.num_wolves && s.right.num_chickens > 0));
 }
 
 //pass in the number of animals on the bank and the amount to try to put on the boat
