@@ -27,6 +27,7 @@ void astar();
 void file_to_state(State&, State&, ifstream&, ifstream&);
 void show_state(State);
 void write_state_to_file(State);
+bool isValid(State);
 
 //Globals
 ofstream out_f;
@@ -82,4 +83,9 @@ void write_state_to_file(State s)
 {
     out_f << s.left.num_chickens << "," << s.left.num_wolves << "," << s.left.boat << '\n'
     << s.right.num_chickens << "," << s.right.num_wolves << "," << s.right.boat << '\n' << endl;
+}
+
+bool isValid(State s)
+{
+    return ((s.left.num_chickens >= s.left.num_wolves) && (s.right.num_chickens >= s.right.num_wolves));
 }
