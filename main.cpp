@@ -18,6 +18,16 @@ struct Bank {
 
 struct State {
     Bank left, right;
+
+    bool operator==(const State a) const
+    {
+        return ((left.num_chickens == a.left.num_chickens)
+                && (left.num_wolves == a.left.num_wolves)
+                && (left.boat == a.left.boat)
+                && (right.num_chickens == a.right.num_chickens)
+                && (right.num_wolves == a.right.num_wolves)
+                && (right.boat == a.right.boat));
+    }
 };
 
 struct Node {
@@ -25,6 +35,7 @@ struct Node {
     Node* prev;
     vector<Node*> succ;
 };
+
 
 void bfs();
 void dfs();
@@ -36,6 +47,9 @@ void show_state(State);
 void write_state_to_file(State);
 bool isValid(State);
 bool enoughAnimals(State, int);
+
+void build_tree(Node*);
+
 //Globals
 ofstream out_f;
 
@@ -46,6 +60,7 @@ int main(int argc, char** argv)
     string init_state_file, goal_state_file, mode, output_file;
     State initial;
     State goal;
+    Node* tree = NULL;
     
     //Check for valid number of arguments
     if(argc == 5)
@@ -67,6 +82,10 @@ int main(int argc, char** argv)
 
     //Fill initial and goal states
     file_to_state(initial, goal, init_f, goal_f);
+
+    tree = new Node();
+    tree->state = initial;
+    tree->prev = NULL;
 
     return 0;
 }
@@ -135,4 +154,9 @@ bool isValid(State s)
 bool enoughAnimals(int numAnimals, int amountToMove)
 {
     return numAnimals > amountToMove;
+}
+
+void build_tree(Node* node)
+{
+    //TODO something
 }
