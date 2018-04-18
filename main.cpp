@@ -9,6 +9,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <queue>
 
 using namespace std;
 
@@ -37,7 +38,7 @@ struct Node {
 };
 
 
-void bfs();
+vector<State> bfs(State, State);
 void dfs();
 void iddfs();
 void astar();
@@ -47,15 +48,14 @@ void show_state(State);
 void write_state_to_file(State);
 bool isValid(State);
 bool enoughAnimals(State, int);
+void moveAnimals(State, State*,  int, int);
 
-void build_tree(Node*);
 
 //Globals
 ofstream out_f;
 
 // <initial state file> <goal state file> <mode> <output file>
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv){
     //Initialize command line argument buffers
     string init_state_file, goal_state_file, mode, output_file;
     State initial;
@@ -155,8 +155,73 @@ bool enoughAnimals(int numAnimals, int amountToMove)
 {
     return numAnimals > amountToMove;
 }
+//find out what side boat is on and move specificed number of animals across
+void moveAnimals(State s, State* newNode, int chicks, int wolves){
+    if(s.left.boat == 1){ //left side has boat
+        //move number of chickens
+        if(enoughAnimals(s.left.num_chickens, chicks)){
+            newNode->left.num_chickens = s.left.num_chickens - chicks;
+            newNode->right.num_chickens = s.right.num_chickens + chicks;
+        }else newNode = NULL; //if cant make move return NULL
 
-void build_tree(Node* node)
+        //move number of wolves
+        if(enoughAnimals(s.left.num_wolves, wolves)){
+            newNode->left.num_wolves = s.left.num_wolves - wolves;
+            newNode->right.num_wolves = s.right.num_wolves + wolves;
+        }else newNode = NULL; //if cant make move return NULL
+ 
+        //move boat
+        newNode->left.boat = 0;
+        newNode->right.boat = 1;
+
+    }else{ //right side has boat
+        //move number of chickens
+        if(enoughAnimals(s.right.num_chickens, chicks)){
+            newNode->right.num_chickens = s.right.num_chickens - chicks;
+            newNode->left.num_chickens = s.left.num_chickens + chicks;
+        }else newNode = NULL; //if cant make move return NULL
+
+        //move number of wolves
+        if(enoughAnimals(s.right.num_wolves, wolves)){
+            newNode->right.num_wolves = s.right.num_wolves - wolves;
+            newNode->left.num_wolves = s.left.num_wolves + wolves;
+        }else newNode = NULL; //if cant make the move return NULL
+        
+        //move boat
+        newNode->right.boat = 0;
+        newNode->left.boat = 1;
+    }
+}
+
+vector<State> bfs(State start, State goal)
 {
-    //TODO something
+    queue<State> elems;
+    vector<State> children;
+    vector<State> path;
+
+    elems.push(start);//add the start state to the queue
+    
+    while(!elems.empty()){ //while elements are still in queue keep going
+        State test = elems.front(); //the new node to test is the one at front of queue
+        path.push_back(test); //add this state to the end of the path
+
+        elems.pop(); //remove front of queue
+        
+        if(test == goal){ //if were at the goal then return the path
+            return path;
+        }
+        
+        //generate children and add them to queue
+        for(int i = 0; i < 5; i++){
+            if(i = 0){ //move one chicken
+                State next; //make a new state for the next move
+                moveAnimals(test, &next 1, 0); //move animals around
+                if(next != NULL  && isValid(next)){ //see if this is a valid move (needs help)
+                    elems.push(next); //if good add it to the queue to check later
+                }  
+            //add rest of the cases here
+            }
+        }
+    }
+    return path; //this will need to change cause void function    
 }
