@@ -26,6 +26,7 @@ void iddfs();
 void astar();
 void file_to_state(State&, State&, ifstream&, ifstream&);
 void show_state(State);
+void write_state_to_file(State);
 
 //Globals
 ofstream out_f;
@@ -57,7 +58,6 @@ int main(int argc, char** argv)
     }
 
     file_to_state(initial, goal, init_f, goal_f);
-    show_state(initial);
 
     return 0;
 }
@@ -76,4 +76,10 @@ void show_state(State s)
 {
     cout << s.left.num_chickens << s.left.num_wolves << s.left.boat << 
     "," << s.right.num_chickens << s.right.num_wolves << s.right.boat << endl;
+}
+
+void write_state_to_file(State s)
+{
+    out_f << s.left.num_chickens << "," << s.left.num_wolves << "," << s.left.boat << '\n'
+    << s.right.num_chickens << "," << s.right.num_wolves << "," << s.right.boat << '\n' << endl;
 }
