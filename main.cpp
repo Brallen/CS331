@@ -51,7 +51,7 @@ bool enoughAnimals(State, int);
 bool moveAnimals(State, State*,  int, int);
 bool visited(vector<State>, State);
 void insert_bfs_node(Node*& parent, Node*& child, State s, vector<State>& states, queue<Node*>& n_queue);
-void insert_bfs_node(Node*& parent, Node*& child, State s, vector<State>& states, stack<Node*>& n_stack);
+void insert_dfs_node(Node*& parent, Node*& child, State s, vector<State>& states, stack<Node*>& n_stack);
 void print_solution(Node*, int);
 
 
@@ -364,23 +364,23 @@ Node* dfs(State start, State goal, int& num_expanded)
         //Inserts that node into the tree if it passes these cases, updates the visited nodes, the queue and increments num_expanded
         if(moveAnimals(node->state, &newState, 1, 0) && isValid(newState) && !visited(unique_states, newState)) //Move one chicken
         {
-            insert_bfs_node(node, newNode, newState, unique_states, node_stack); num_expanded++;
+            insert_dfs_node(node, newNode, newState, unique_states, node_stack); num_expanded++;
         }
         if(moveAnimals(node->state, &newState, 2, 0) && isValid(newState) && !visited(unique_states, newState)) //Move two chickens
         {
-            insert_bfs_node(node, newNode, newState, unique_states, node_stack); num_expanded++;
+            insert_dfs_node(node, newNode, newState, unique_states, node_stack); num_expanded++;
         }
         if(moveAnimals(node->state, &newState, 0, 1) && isValid(newState) && !visited(unique_states, newState)) //Move one wolf
         {
-            insert_bfs_node(node, newNode, newState, unique_states, node_stack); num_expanded++;
+            insert_dfs_node(node, newNode, newState, unique_states, node_stack); num_expanded++;
         }
         if(moveAnimals(node->state, &newState, 1, 1) && isValid(newState) && !visited(unique_states, newState)) //Move one chicken and one wolf
         {
-            insert_bfs_node(node, newNode, newState, unique_states, node_stack); num_expanded++;
+            insert_dfs_node(node, newNode, newState, unique_states, node_stack); num_expanded++;
         }
         if(moveAnimals(node->state, &newState, 0, 2) && isValid(newState) && !visited(unique_states, newState)) //Move two wolves
         {
-            insert_bfs_node(node, newNode, newState, unique_states, node_stack); num_expanded++;
+            insert_dfs_node(node, newNode, newState, unique_states, node_stack); num_expanded++;
         }
     }
     return NULL; //Return null if no solution was found
@@ -411,7 +411,7 @@ void insert_bfs_node(Node*& parent, Node*& child, State s, vector<State>& states
 * Pre-Conditions: The state to be added as a new node must be a valid state that hasn't already been added to the tree
 * Post-Conditions: Node has been added to the tree
 **************************************************************/
-void insert_bfs_node(Node*& parent, Node*& child, State s, vector<State>& states, stack<Node*>& n_stack)
+void insert_dfs_node(Node*& parent, Node*& child, State s, vector<State>& states, stack<Node*>& n_stack)
 {
     child = new Node();
     child->state = s;
