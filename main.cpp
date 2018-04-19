@@ -35,6 +35,7 @@ struct State {
 struct Node {
     State state;
     Node* prev;
+    int depth;
 };
 
 
@@ -49,10 +50,12 @@ void write_state_to_file(State);
 bool isValid(State);
 bool enoughAnimals(State, int);
 bool moveAnimals(State, State*,  int, int);
-bool visited(vector<State>, State);
-void insert_bfs_node(Node*& parent, Node*& child, State s, vector<State>& states, queue<Node*>& n_queue);
-void insert_dfs_node(Node*& parent, Node*& child, State s, vector<State>& states, stack<Node*>& n_stack);
+bool visited(vector<Node*>, State);
+void insert_bfs_node(Node*& parent, Node*& child, State s, vector<Node*>& states, queue<Node*>& n_queue);
+void insert_iddfs_node(Node*& parent, Node*& child, State s, vector<Node*>& states, stack<Node*>& n_stack);
+void insert_dfs_node(Node*& parent, Node*& child, State s, vector<Node*>& states, stack<Node*>& n_stack);
 void print_solution(Node*, int);
+void delete_nodes(vector<Node*>);
 
 
 //Globals
@@ -288,7 +291,7 @@ Node* bfs(State start, State goal, int& num_expanded)
     num_expanded = 1; //We always expand the first node
 
     queue<Node*> node_queue;  //Queue to hold next expanded nodes to check
-    vector<State> unique_states; //Vector to hold already visited states (NOTE: Could change this to nodes so we can free them later and avoid memory leaks)
+    vector<Node*> unique_nodes; //Vector to hold already visited states
 
     //Create a starting node that has the initial state
     Node* node = new Node();
@@ -297,7 +300,7 @@ Node* bfs(State start, State goal, int& num_expanded)
 
     //Add this node to both the queue and the visited states
     node_queue.push(node);
-    unique_states.push_back(node->state);
+    unique_nodes.push_back(node);
 
     Node* newNode; //Container for any new node we make
 
@@ -315,25 +318,25 @@ Node* bfs(State start, State goal, int& num_expanded)
 
         //Creates 5 new states and checks if those states are able to be created, are valid states and are not duplicate states
         //Inserts that node into the tree if it passes these cases, updates the visited nodes, the queue and increments num_expanded
-        if(moveAnimals(node->state, &newState, 1, 0) && isValid(newState) && !visited(unique_states, newState)) //Move one chicken
+        if(moveAnimals(node->state, &newState, 1, 0) && isValid(newState) && !visited(unique_nodes, newState)) //Move one chicken
         {
-            insert_bfs_node(node, newNode, newState, unique_states, node_queue); num_expanded++;
+            insert_bfs_node(node, newNode, newState, unique_nodes, node_queue); num_expanded++;
         }
-        if(moveAnimals(node->state, &newState, 2, 0) && isValid(newState) && !visited(unique_states, newState)) //Move two chickens
+        if(moveAnimals(node->state, &newState, 2, 0) && isValid(newState) && !visited(unique_nodes, newState)) //Move two chickens
         {
-            insert_bfs_node(node, newNode, newState, unique_states, node_queue); num_expanded++;
+            insert_bfs_node(node, newNode, newState, unique_nodes, node_queue); num_expanded++;
         }
-        if(moveAnimals(node->state, &newState, 0, 1) && isValid(newState) && !visited(unique_states, newState)) //Move one wolf
+        if(moveAnimals(node->state, &newState, 0, 1) && isValid(newState) && !visited(unique_nodes, newState)) //Move one wolf
         {
-            insert_bfs_node(node, newNode, newState, unique_states, node_queue); num_expanded++;
+            insert_bfs_node(node, newNode, newState, unique_nodes, node_queue); num_expanded++;
         }
-        if(moveAnimals(node->state, &newState, 1, 1) && isValid(newState) && !visited(unique_states, newState)) //Move one chicken and one wolf
+        if(moveAnimals(node->state, &newState, 1, 1) && isValid(newState) && !visited(unique_nodes, newState)) //Move one chicken and one wolf
         {
-            insert_bfs_node(node, newNode, newState, unique_states, node_queue); num_expanded++;
+            insert_bfs_node(node, newNode, newState, unique_nodes, node_queue); num_expanded++;
         }
-        if(moveAnimals(node->state, &newState, 0, 2) && isValid(newState) && !visited(unique_states, newState)) //Move two wolves
+        if(moveAnimals(node->state, &newState, 0, 2) && isValid(newState) && !visited(unique_nodes, newState)) //Move two wolves
         {
-            insert_bfs_node(node, newNode, newState, unique_states, node_queue); num_expanded++;
+            insert_bfs_node(node, newNode, newState, unique_nodes, node_queue); num_expanded++;
         }
     }
     return NULL; //Return null if no solution was found
@@ -352,7 +355,7 @@ Node* dfs(State start, State goal, int& num_expanded)
     num_expanded = 1; //We always expand the first node
 
     stack<Node*> node_stack;  //Stack to hold next expanded nodes to check
-    vector<State> unique_states; //Vector to hold already visited states (NOTE: Could change this to nodes so we can free them later and avoid memory leaks)
+    vector<Node*> unique_nodes; //Vector to hold already visited states
 
     //Create a starting node that has the initial state
     Node* node = new Node();
@@ -361,11 +364,11 @@ Node* dfs(State start, State goal, int& num_expanded)
 
     //Add this node to both the stack and the visited states
     node_stack.push(node);
-    unique_states.push_back(node->state);
+    unique_nodes.push_back(node);
 
     Node* newNode; //Container for any new node we make
 
-    //While there the stack is not empty (Still nodes to expand/view)
+    //While the stack is not empty (Still nodes to expand/view)
     while(!node_stack.empty())
     {
         node = node_stack.top(); //Get the node at the end of the stack for evaluation
@@ -379,41 +382,115 @@ Node* dfs(State start, State goal, int& num_expanded)
 
         //Creates 5 new states and checks if those states are able to be created, are valid states and are not duplicate states
         //Inserts that node into the tree if it passes these cases, updates the visited nodes, the stack and increments num_expanded
-        if(moveAnimals(node->state, &newState, 1, 0) && isValid(newState) && !visited(unique_states, newState)) //Move one chicken
+        if(moveAnimals(node->state, &newState, 1, 0) && isValid(newState) && !visited(unique_nodes, newState)) //Move one chicken
         {
-            insert_dfs_node(node, newNode, newState, unique_states, node_stack); num_expanded++;
+            insert_dfs_node(node, newNode, newState, unique_nodes, node_stack); num_expanded++;
         }
-        if(moveAnimals(node->state, &newState, 2, 0) && isValid(newState) && !visited(unique_states, newState)) //Move two chickens
+        if(moveAnimals(node->state, &newState, 2, 0) && isValid(newState) && !visited(unique_nodes, newState)) //Move two chickens
         {
-            insert_dfs_node(node, newNode, newState, unique_states, node_stack); num_expanded++;
+            insert_dfs_node(node, newNode, newState, unique_nodes, node_stack); num_expanded++;
         }
-        if(moveAnimals(node->state, &newState, 0, 1) && isValid(newState) && !visited(unique_states, newState)) //Move one wolf
+        if(moveAnimals(node->state, &newState, 0, 1) && isValid(newState) && !visited(unique_nodes, newState)) //Move one wolf
         {
-            insert_dfs_node(node, newNode, newState, unique_states, node_stack); num_expanded++;
+            insert_dfs_node(node, newNode, newState, unique_nodes, node_stack); num_expanded++;
         }
-        if(moveAnimals(node->state, &newState, 1, 1) && isValid(newState) && !visited(unique_states, newState)) //Move one chicken and one wolf
+        if(moveAnimals(node->state, &newState, 1, 1) && isValid(newState) && !visited(unique_nodes, newState)) //Move one chicken and one wolf
         {
-            insert_dfs_node(node, newNode, newState, unique_states, node_stack); num_expanded++;
+            insert_dfs_node(node, newNode, newState, unique_nodes, node_stack); num_expanded++;
         }
-        if(moveAnimals(node->state, &newState, 0, 2) && isValid(newState) && !visited(unique_states, newState)) //Move two wolves
+        if(moveAnimals(node->state, &newState, 0, 2) && isValid(newState) && !visited(unique_nodes, newState)) //Move two wolves
         {
-            insert_dfs_node(node, newNode, newState, unique_states, node_stack); num_expanded++;
+            insert_dfs_node(node, newNode, newState, unique_nodes, node_stack); num_expanded++;
         }
     }
     return NULL; //Return null if no solution was found
 }
 
 /***************************************************************
-* Function: 
-* Description: 
-* Params: 
-* Returns: 
-* Pre-Conditions: 
-* Post-Conditions: 
+* Function: iddfs
+* Description: Uses an interative deepening depth first search algorithm to find the solution path
+* Params: Initial state, goal state, int container for number of expanded nodes
+* Returns: Solution node that can be backtraced to the root node or NULL if there was no solution
+* Pre-Conditions: Valid initial and goal state. Existing int container for num_expanded
+* Post-Conditions: Exits
 **************************************************************/
 Node* iddfs(State start, State goal, int& num_expanded)
 {
-    return NULL;
+    num_expanded = 1; //We always expand the first node
+    int max_depth = 0, deepest = 0; //max_depth is the iterative depth, deepest is the depth of the deepest node in each iteration
+
+    stack<Node*> node_stack;  //Stack to hold next expanded nodes to check
+    vector<Node*> unique_nodes; //Vector to hold already visited states
+
+    //Infinite loop, will end if we get the goal node or never exceed the max_depth
+    while(true)
+    {
+        //Create a starting node that has the initial state
+        Node* node = new Node();
+        node->state = start;
+        node->prev = NULL;
+        node->depth = 0;
+
+        //Add this node to both the stack and the visited states
+        node_stack.push(node);
+        unique_nodes.push_back(node);
+
+        Node* newNode; //Container for any new node we make
+
+        //While the stack is not empty (Still nodes to expand/view)
+        while(!node_stack.empty())
+        {
+            node = node_stack.top(); //Get the node at the end of the stack for evaluation
+            node_stack.pop(); //Physically remove that node from the stack
+
+            //Update the deepest value if a new deepest depth is reached
+            if(deepest < node->depth)
+                deepest = node->depth;
+
+            //Check if the node's state is the goal state
+            if(node->state == goal)
+                return node;
+
+            State newState; //Container for any new state we create via moveAnimals()
+
+            //If we've reached the maximum depth, skip the child additions
+            if(node->depth == max_depth)
+                continue;
+
+            //Creates 5 new states and checks if those states are able to be created, are valid states and are not duplicate states
+            //Inserts that node into the tree if it passes these cases, updates the visited nodes, the stack and increments num_expanded
+            if(moveAnimals(node->state, &newState, 1, 0) && isValid(newState) && !visited(unique_nodes, newState)) //Move one chicken
+            {
+                insert_iddfs_node(node, newNode, newState, unique_nodes, node_stack); num_expanded++;
+            }
+            if(moveAnimals(node->state, &newState, 2, 0) && isValid(newState) && !visited(unique_nodes, newState)) //Move two chickens
+            {
+                insert_iddfs_node(node, newNode, newState, unique_nodes, node_stack); num_expanded++;
+            }
+            if(moveAnimals(node->state, &newState, 0, 1) && isValid(newState) && !visited(unique_nodes, newState)) //Move one wolf
+            {
+                insert_iddfs_node(node, newNode, newState, unique_nodes, node_stack); num_expanded++;
+            }
+            if(moveAnimals(node->state, &newState, 1, 1) && isValid(newState) && !visited(unique_nodes, newState)) //Move one chicken and one wolf
+            {
+                insert_iddfs_node(node, newNode, newState, unique_nodes, node_stack); num_expanded++;
+            }
+            if(moveAnimals(node->state, &newState, 0, 2) && isValid(newState) && !visited(unique_nodes, newState)) //Move two wolves
+            {
+                insert_iddfs_node(node, newNode, newState, unique_nodes, node_stack); num_expanded++;
+            }
+        }
+
+        //If the search never reached the maximum depth then there is no solution so return null
+        if(deepest < max_depth)
+            return NULL;
+
+        //Reset values, delete nodes and clean containers
+        deepest = 0;
+        max_depth++;
+        delete_nodes(unique_nodes);
+        unique_nodes.clear();
+    }   
 }
 
 /***************************************************************
@@ -431,53 +508,88 @@ Node* astar(State start, State goal, int& num_expanded)
 
 /***************************************************************
 * Function: insert_bfs_node
-* Description: Creates a new node with the provided state, parent node associato and adds it to the visited list and the queue. 
+* Description: Creates a new node with the provided state, parent node associaton and adds it to the visited list and the queue. 
 * Params: Parent node, new node, new state, closed list of visited states, the queue
 * Returns: None
 * Pre-Conditions: The state to be added as a new node must be a valid state that hasn't already been added to the tree
 * Post-Conditions: Node has been added to the tree
 **************************************************************/
-void insert_bfs_node(Node*& parent, Node*& child, State s, vector<State>& states, queue<Node*>& n_queue)
+void insert_bfs_node(Node*& parent, Node*& child, State s, vector<Node*>& states, queue<Node*>& n_queue)
 {
     child = new Node();
     child->state = s;
     child->prev = parent;
-    states.push_back(s);
+    states.push_back(child);
     n_queue.push(child);
 }
 
 /***************************************************************
 * Function: insert_dfs_node
-* Description: Creates a new node with the provided state, parent node associato and adds it to the visited list and the stack. 
+* Description: Creates a new node with the provided state, parent node associaton and adds it to the visited list and the stack. 
 * Params: Parent node, new node, new state, closed list of visited states, the stack
 * Returns: None
 * Pre-Conditions: The state to be added as a new node must be a valid state that hasn't already been added to the tree
 * Post-Conditions: Node has been added to the tree
 **************************************************************/
-void insert_dfs_node(Node*& parent, Node*& child, State s, vector<State>& states, stack<Node*>& n_stack)
+void insert_dfs_node(Node*& parent, Node*& child, State s, vector<Node*>& states, stack<Node*>& n_stack)
 {
     child = new Node();
     child->state = s;
     child->prev = parent;
-    states.push_back(s);
+    states.push_back(child);
+    n_stack.push(child);
+}
+
+/***************************************************************
+* Function: insert_iddfs_node
+* Description: Creates a new node with the provided state, parent node associato and adds it to the visited list and the stack. Sets depth value based on parent depth.
+* Params: Parent node, new node, new state, closed list of visited states, the stack
+* Returns: None
+* Pre-Conditions: The state to be added as a new node must be a valid state that hasn't already been added to the tree
+* Post-Conditions: Node has been added to the tree with correct depth value
+**************************************************************/
+void insert_iddfs_node(Node*& parent, Node*& child, State s, vector<Node*>& states, stack<Node*>& n_stack)
+{
+    child = new Node();
+    child->state = s;
+    child->prev = parent;
+    child->depth = parent->depth + 1;
+    states.push_back(child);
     n_stack.push(child);
 }
 
 /***************************************************************
 * Function: visited
 * Description: Searches through the closed list of states we've already created and determines if the candidate state is a duplicate or not
-* Params: Closed list of states (Vector<State>), Candidate state
+* Params: Closed list of states (Vector<Node*>), Candidate state
 * Returns: True if the state is a duplicate, false if otherwise
 * Pre-Conditions: Candidate state and states in the list (Could be an empty list) actually contain valid info
 * Post-Conditions: None
 **************************************************************/
-bool visited(vector<State> states, State state)
+bool visited(vector<Node*> states, State state)
 {
-    vector<State>::iterator it;
+    vector<Node*>::iterator it;
     for(it = states.begin(); it != states.end(); it++)
     {
-        if(*it == state)
+        if((*it)->state == state)
             return true;
     }
     return false;
+}
+
+/***************************************************************
+* Function: delete_nodes
+* Description: Frees the memory of the nodes in the vector<Node*> list passed in
+* Params: Closed list of states (Vector<Node*>)
+* Returns: none
+* Pre-Conditions: none
+* Post-Conditions: Memory is freed.
+**************************************************************/
+void delete_nodes(vector<Node*> nodes)
+{
+    vector<Node*>::iterator it;
+    for(it = nodes.begin(); it != nodes.end(); it++)
+    {
+        delete *it;
+    }
 }
