@@ -40,8 +40,8 @@ struct Node {
 
 Node* bfs(State, State, int&);
 Node* dfs(State, State, int&);
-void iddfs();
-void astar();
+Node* iddfs(State, State, int&);
+Node* astar(State, State, int&);
 
 void file_to_state(State&, State&, ifstream&, ifstream&);
 void show_state(State);
@@ -91,11 +91,28 @@ int main(int argc, char** argv){
     //Close input streams
     init_f.close(); goal_f.close();
 
-    //Print out the solution to stdout and the output file
     int expanded;
-    Node* solution = dfs(initial, goal, expanded);
+    Node* solution;
+    //Evaluate mode argument for validity and call search method associated with mode
+    if(mode.compare("bfs") == 0)
+        solution = bfs(initial, goal, expanded);
+    else if(mode.compare("dfs") == 0)
+        solution = dfs(initial, goal, expanded);
+    else if(mode.compare("iddfs") == 0)
+        solution = iddfs(initial, goal, expanded);
+    else if(mode.compare("astar") == 0)
+        solution = astar(initial, goal, expanded);
+    else
+    {
+        cout << "ERROR: Invalid search mode specified (bfs, dfs, iddfs, astar)" << endl;
+        return 1;
+    }
+
+    //Print out the solution to stdout and the output file
     print_solution(solution, expanded);
 
+    //Close output stream and return 0 status
+    out_f.close();
     return 0;
 }
 
@@ -113,8 +130,8 @@ void print_solution(Node* solution, int expanded)
     int depth = 0;
     if(solution == NULL)
     {
-        cout << "Nodes expanded" << expanded << "\nNo solution found." << endl;
-        out_f << "Nodes expanded" << expanded << "\nNo solution found." << endl;
+        cout << "Nodes expanded: " << expanded << "\nNo solution found." << endl;
+        out_f << "Nodes expanded: " << expanded << "\nNo solution found." << endl;
     }
     else
     {
@@ -334,7 +351,7 @@ Node* dfs(State start, State goal, int& num_expanded)
 {
     num_expanded = 1; //We always expand the first node
 
-    stack<Node*> node_stack;  //Queue to hold next expanded nodes to check
+    stack<Node*> node_stack;  //Stack to hold next expanded nodes to check
     vector<State> unique_states; //Vector to hold already visited states (NOTE: Could change this to nodes so we can free them later and avoid memory leaks)
 
     //Create a starting node that has the initial state
@@ -342,17 +359,17 @@ Node* dfs(State start, State goal, int& num_expanded)
     node->state = start;
     node->prev = NULL;
 
-    //Add this node to both the queue and the visited states
+    //Add this node to both the stack and the visited states
     node_stack.push(node);
     unique_states.push_back(node->state);
 
     Node* newNode; //Container for any new node we make
 
-    //While there the queue is not empty (Still nodes to expand/view)
+    //While there the stack is not empty (Still nodes to expand/view)
     while(!node_stack.empty())
     {
-        node = node_stack.top(); //Get the node at the end of the queue for evaluation
-        node_stack.pop(); //Physically remove that node from the queue
+        node = node_stack.top(); //Get the node at the end of the stack for evaluation
+        node_stack.pop(); //Physically remove that node from the stack
 
         //Check if the node's state is the goal state
         if(node->state == goal)
@@ -361,7 +378,7 @@ Node* dfs(State start, State goal, int& num_expanded)
         State newState; //Container for any new state we create via moveAnimals()
 
         //Creates 5 new states and checks if those states are able to be created, are valid states and are not duplicate states
-        //Inserts that node into the tree if it passes these cases, updates the visited nodes, the queue and increments num_expanded
+        //Inserts that node into the tree if it passes these cases, updates the visited nodes, the stack and increments num_expanded
         if(moveAnimals(node->state, &newState, 1, 0) && isValid(newState) && !visited(unique_states, newState)) //Move one chicken
         {
             insert_dfs_node(node, newNode, newState, unique_states, node_stack); num_expanded++;
@@ -387,6 +404,32 @@ Node* dfs(State start, State goal, int& num_expanded)
 }
 
 /***************************************************************
+* Function: 
+* Description: 
+* Params: 
+* Returns: 
+* Pre-Conditions: 
+* Post-Conditions: 
+**************************************************************/
+Node* iddfs(State start, State goal, int& num_expanded)
+{
+    return NULL;
+}
+
+/***************************************************************
+* Function: 
+* Description: 
+* Params: 
+* Returns: 
+* Pre-Conditions: 
+* Post-Conditions: 
+**************************************************************/
+Node* astar(State start, State goal, int& num_expanded)
+{
+    return NULL;
+}
+
+/***************************************************************
 * Function: insert_bfs_node
 * Description: Creates a new node with the provided state, parent node associato and adds it to the visited list and the queue. 
 * Params: Parent node, new node, new state, closed list of visited states, the queue
@@ -405,8 +448,8 @@ void insert_bfs_node(Node*& parent, Node*& child, State s, vector<State>& states
 
 /***************************************************************
 * Function: insert_dfs_node
-* Description: Creates a new node with the provided state, parent node associato and adds it to the visited list and the queue. 
-* Params: Parent node, new node, new state, closed list of visited states, the queue
+* Description: Creates a new node with the provided state, parent node associato and adds it to the visited list and the stack. 
+* Params: Parent node, new node, new state, closed list of visited states, the stack
 * Returns: None
 * Pre-Conditions: The state to be added as a new node must be a valid state that hasn't already been added to the tree
 * Post-Conditions: Node has been added to the tree
