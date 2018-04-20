@@ -1,0 +1,6 @@
+#!/bin/bash
+
+clear
+rm -f output.txt
+g++ main.cpp
+
