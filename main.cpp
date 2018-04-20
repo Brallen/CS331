@@ -432,6 +432,7 @@ Node* dfs(State start, State goal, int& num_expanded)
 **************************************************************/
 Node* iddfs(State start, State goal, int& num_expanded)
 {
+    num_expanded = 0;
     int max_depth = 0, deepest = 0; //max_depth is the iterative depth, deepest is the depth of the deepest node in each iteration
 
     stack<Node*> node_stack;  //Stack to hold next expanded nodes to check
@@ -440,7 +441,6 @@ Node* iddfs(State start, State goal, int& num_expanded)
     //Infinite loop, will end if we get the goal node or never exceed the max_depth
     while(true)
     {
-        num_expanded = 0;
         //Create a starting node that has the initial state
         Node* node = new Node();
         node->state = start;
