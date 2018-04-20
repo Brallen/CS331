@@ -16,6 +16,10 @@ using namespace std;
 
 struct Bank {
     unsigned int num_wolves, num_chickens, boat;
+    int sum()
+    {
+        return num_wolves + num_chickens + boat;
+    }
 };
 
 struct State {
@@ -43,9 +47,11 @@ struct p_queue_item {
     int priority;
     Node* node;
 
+    //The heuristic gives 0 the highest priority and the priority_queue template usually sorts as the highest number having the highest priority
+    //We've overloaded the < operator to actually do a >= operation to flip the priority view
     bool operator<(const p_queue_item& a) const
     {
-        return priority < a.priority;
+        return priority >= a.priority;
     }
 };
 
@@ -65,7 +71,7 @@ bool visited(vector<Node*>, State);
 void insert_bfs_node(Node*&, Node*&, State, vector<Node*>&, queue<Node*>&);
 void insert_iddfs_node(Node*&, Node*&, State, vector<Node*>&, stack<Node*>&);
 void insert_dfs_node(Node*&, Node*&, State, vector<Node*>&, stack<Node*>&);
-void insert_astar_node(Node*&, Node*&, State, vector<Node*>&, priority_queue<p_queue_item>&, int);
+void insert_astar_node(Node*&, Node*&, State, vector<Node*>&, priority_queue<p_queue_item>&, State);
 void print_solution(Node*, int);
 void delete_nodes(vector<Node*>);
 
@@ -511,13 +517,9 @@ Node* iddfs(State start, State goal, int& num_expanded)
 
 /***************************************************************
 * Function: astar
-* Description: Uses an A* admissible heuristic search to find the solution path. 
-* The heuristic is to prioritize moves in this order: 
-*   1) Two chickens
-*   2) Two wolves
-*   3) One wolf, one chicken
-*   4) One chicken
-*   5) One wolf
+* Description: Uses an A* admissible heuristic search to find the solution path. The heuristic value is calculated by the sum of chickens, wolves and boat on the
+* left side of the goal state minus the sum of chickens, wolves and boat on the left side of the current state. If the heuristic value is zero then the current state is
+* the goal state and has the highest priority. The smaller the heuristic value, the higher the priority.
 * Params: Initial state, goal state, int container for number of expanded nodes
 * Returns: Solution node that can be backtraced to the root node or NULL if there was no solution
 * Pre-Conditions: Valid initial and goal state. Existing int container for num_expanded
@@ -537,9 +539,9 @@ Node* astar(State start, State goal, int& num_expanded)
     node->prev = NULL;
     node->depth = 0;
 
-    //Place node into a p_queue_item structure for sorting and give it priority 0
+    //Place initial node into a p_queue_item structure for sorting and give it the lowest priority
     q.node = node;
-    q.priority = 0; 
+    q.priority = goal.left.sum() - start.left.sum(); 
 
     //Add this node to both the queue and the visited states
     node_queue.push(q);
@@ -561,29 +563,28 @@ Node* astar(State start, State goal, int& num_expanded)
 
         State newState; //Container for any new state we create via moveAnimals()
 
-        //PRIORITY FROM MOST IMPORTANT TO LEAST IMPORTANT: 4,3,2,1,0
         //Creates 5 new states and checks if those states are able to be created, are valid states and are not duplicate states
-        //Includes hard coded priority for certain moves based on the heuristic. Gives the node that respective priority.
+        //Gives a priority to the node from the heuristic
         //Inserts that node into the tree if it passes these cases, updates the visited nodes, the queue and increments num_expanded
-        if(moveAnimals(node->state, &newState, 1, 0) && isValid(newState) && !visited(unique_nodes, newState)) //Move one chicken - PRIORITY LEVEL 1
+        if(moveAnimals(node->state, &newState, 1, 0) && isValid(newState) && !visited(unique_nodes, newState)) //Move one chicken 
         {
-            insert_astar_node(node, newNode, newState, unique_nodes, node_queue, 1); 
+            insert_astar_node(node, newNode, newState, unique_nodes, node_queue, goal); 
         }
-        if(moveAnimals(node->state, &newState, 2, 0) && isValid(newState) && !visited(unique_nodes, newState)) //Move two chickens - PRIORITY LEVEL 4 (Most important)
+        if(moveAnimals(node->state, &newState, 2, 0) && isValid(newState) && !visited(unique_nodes, newState)) //Move two chickens
         {
-            insert_astar_node(node, newNode, newState, unique_nodes, node_queue, 4); 
+            insert_astar_node(node, newNode, newState, unique_nodes, node_queue, goal); 
         }
-        if(moveAnimals(node->state, &newState, 0, 1) && isValid(newState) && !visited(unique_nodes, newState)) //Move one wolf - PRIORITY LEVEL 0 (Least important)
+        if(moveAnimals(node->state, &newState, 0, 1) && isValid(newState) && !visited(unique_nodes, newState)) //Move one wolf
         {
-            insert_astar_node(node, newNode, newState, unique_nodes, node_queue, 0); 
+            insert_astar_node(node, newNode, newState, unique_nodes, node_queue, goal); 
         }
-        if(moveAnimals(node->state, &newState, 1, 1) && isValid(newState) && !visited(unique_nodes, newState)) //Move one chicken and one wolf - PRIORITY LEVEL 2
+        if(moveAnimals(node->state, &newState, 1, 1) && isValid(newState) && !visited(unique_nodes, newState)) //Move one chicken and one wolf
         {
-            insert_astar_node(node, newNode, newState, unique_nodes, node_queue, 2);
+            insert_astar_node(node, newNode, newState, unique_nodes, node_queue, goal);
         }
-        if(moveAnimals(node->state, &newState, 0, 2) && isValid(newState) && !visited(unique_nodes, newState)) //Move two wolves - PRIORITY LEVEL 3
+        if(moveAnimals(node->state, &newState, 0, 2) && isValid(newState) && !visited(unique_nodes, newState)) //Move two wolves
         {
-            insert_astar_node(node, newNode, newState, unique_nodes, node_queue, 3);
+            insert_astar_node(node, newNode, newState, unique_nodes, node_queue, goal);
         }
     }
     return NULL; //Return null if no solution was found
@@ -644,20 +645,20 @@ void insert_iddfs_node(Node*& parent, Node*& child, State s, vector<Node*>& stat
 /***************************************************************
 * Function: insert_astar_node
 * Description: Creates a new node with the provided state, parent node associaton, priority and adds it to the visited list and the priority queue. 
-* Params: Parent node, new node, new state, closed list of visited states, the priority queue, priority level
+* Generates a priority value based on the heuristic
+* Params: Parent node, new node, new state, closed list of visited states, the priority queue, the goal state
 * Returns: None
 * Pre-Conditions: The state to be added as a new node must be a valid state that hasn't already been added to the tree
 * Post-Conditions: Node has been added to the tree
 **************************************************************/
-void insert_astar_node(Node*& parent, Node*& child, State s, vector<Node*>& states, priority_queue<p_queue_item>& n_queue, int priority)
+void insert_astar_node(Node*& parent, Node*& child, State s, vector<Node*>& states, priority_queue<p_queue_item>& n_queue, State goal)
 {
     child = new Node();
     child->state = s;
     child->prev = parent;
-    child->depth = priority;
 
     p_queue_item q;
-    q.priority = child->depth;
+    q.priority = goal.left.sum() - s.left.sum(); //Heuristic evaluation of the current state
     q.node = child;
     states.push_back(child);
     n_queue.push(q);
