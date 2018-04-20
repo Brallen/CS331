@@ -226,15 +226,13 @@ bool isValid(State s)
     return ((s.left.num_chickens >= s.left.num_wolves || s.left.num_chickens == 0) && (s.right.num_chickens >= s.right.num_wolves || s.right.num_chickens == 0));
 }
 
-//pass in the number of animals on the bank and the amount to try to put on the boat
-//to see if this is a valid move
 /***************************************************************
-* Function: 
-* Description: 
-* Params: 
-* Returns: 
-* Pre-Conditions: 
-* Post-Conditions: 
+* Function: enoughAnimals
+* Description: tells if there are enough animals available to move on boat
+* Params: the number of animals on a bank, and the number you are trying to move
+* Returns: True if enough animals, false if not enough
+* Pre-Conditions: None
+* Post-Conditions: None
 **************************************************************/
 bool enoughAnimals(int numAnimals, int amountToMove)
 {
@@ -242,12 +240,12 @@ bool enoughAnimals(int numAnimals, int amountToMove)
 }
 //find out what side boat is on and move specificed number of animals across
 /***************************************************************
-* Function: 
-* Description: 
-* Params: 
-* Returns: 
-* Pre-Conditions: 
-* Post-Conditions: 
+* Function: moveAnimals
+* Description: changes the values of the banks to represent animals moving
+* Params: the parent state, the new state, the number of chickens to move, and the number of wolves to move
+* Returns: Bool on if the new state was successful in being made
+* Pre-Conditions: State s and State* newNode need to exist
+* Post-Conditions: State* newNode will hold the next state in order
 **************************************************************/
 bool moveAnimals(State s, State* newNode, int chicks, int wolves){
     if(s.left.boat == 1){ //left side has boat
