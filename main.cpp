@@ -300,7 +300,7 @@ bool moveAnimals(State s, State* newNode, int chicks, int wolves){
 **************************************************************/
 Node* bfs(State start, State goal, int& num_expanded)
 {
-    num_expanded = 1; //We always expand the first node
+    num_expanded = 0;
 
     queue<Node*> node_queue;  //Queue to hold next expanded nodes to check
     vector<Node*> unique_nodes; //Vector to hold already visited states
@@ -326,29 +326,31 @@ Node* bfs(State start, State goal, int& num_expanded)
         if(node->state == goal)
             return node;
 
+        num_expanded++;
+
         State newState; //Container for any new state we create via moveAnimals()
 
         //Creates 5 new states and checks if those states are able to be created, are valid states and are not duplicate states
         //Inserts that node into the tree if it passes these cases, updates the visited nodes, the queue and increments num_expanded
         if(moveAnimals(node->state, &newState, 1, 0) && isValid(newState) && !visited(unique_nodes, newState)) //Move one chicken
         {
-            insert_bfs_node(node, newNode, newState, unique_nodes, node_queue); num_expanded++;
+            insert_bfs_node(node, newNode, newState, unique_nodes, node_queue);
         }
         if(moveAnimals(node->state, &newState, 2, 0) && isValid(newState) && !visited(unique_nodes, newState)) //Move two chickens
         {
-            insert_bfs_node(node, newNode, newState, unique_nodes, node_queue); num_expanded++;
+            insert_bfs_node(node, newNode, newState, unique_nodes, node_queue); 
         }
         if(moveAnimals(node->state, &newState, 0, 1) && isValid(newState) && !visited(unique_nodes, newState)) //Move one wolf
         {
-            insert_bfs_node(node, newNode, newState, unique_nodes, node_queue); num_expanded++;
+            insert_bfs_node(node, newNode, newState, unique_nodes, node_queue); 
         }
         if(moveAnimals(node->state, &newState, 1, 1) && isValid(newState) && !visited(unique_nodes, newState)) //Move one chicken and one wolf
         {
-            insert_bfs_node(node, newNode, newState, unique_nodes, node_queue); num_expanded++;
+            insert_bfs_node(node, newNode, newState, unique_nodes, node_queue); 
         }
         if(moveAnimals(node->state, &newState, 0, 2) && isValid(newState) && !visited(unique_nodes, newState)) //Move two wolves
         {
-            insert_bfs_node(node, newNode, newState, unique_nodes, node_queue); num_expanded++;
+            insert_bfs_node(node, newNode, newState, unique_nodes, node_queue); 
         }
     }
     return NULL; //Return null if no solution was found
@@ -364,7 +366,7 @@ Node* bfs(State start, State goal, int& num_expanded)
 **************************************************************/
 Node* dfs(State start, State goal, int& num_expanded)
 {
-    num_expanded = 1; //We always expand the first node
+    num_expanded = 0;
 
     stack<Node*> node_stack;  //Stack to hold next expanded nodes to check
     vector<Node*> unique_nodes; //Vector to hold already visited states
@@ -390,29 +392,31 @@ Node* dfs(State start, State goal, int& num_expanded)
         if(node->state == goal)
             return node;
 
+        num_expanded++;
+
         State newState; //Container for any new state we create via moveAnimals()
 
         //Creates 5 new states and checks if those states are able to be created, are valid states and are not duplicate states
         //Inserts that node into the tree if it passes these cases, updates the visited nodes, the stack and increments num_expanded
         if(moveAnimals(node->state, &newState, 1, 0) && isValid(newState) && !visited(unique_nodes, newState)) //Move one chicken
         {
-            insert_dfs_node(node, newNode, newState, unique_nodes, node_stack); num_expanded++;
+            insert_dfs_node(node, newNode, newState, unique_nodes, node_stack); 
         }
         if(moveAnimals(node->state, &newState, 2, 0) && isValid(newState) && !visited(unique_nodes, newState)) //Move two chickens
         {
-            insert_dfs_node(node, newNode, newState, unique_nodes, node_stack); num_expanded++;
+            insert_dfs_node(node, newNode, newState, unique_nodes, node_stack); 
         }
         if(moveAnimals(node->state, &newState, 0, 1) && isValid(newState) && !visited(unique_nodes, newState)) //Move one wolf
         {
-            insert_dfs_node(node, newNode, newState, unique_nodes, node_stack); num_expanded++;
+            insert_dfs_node(node, newNode, newState, unique_nodes, node_stack); 
         }
         if(moveAnimals(node->state, &newState, 1, 1) && isValid(newState) && !visited(unique_nodes, newState)) //Move one chicken and one wolf
         {
-            insert_dfs_node(node, newNode, newState, unique_nodes, node_stack); num_expanded++;
+            insert_dfs_node(node, newNode, newState, unique_nodes, node_stack); 
         }
         if(moveAnimals(node->state, &newState, 0, 2) && isValid(newState) && !visited(unique_nodes, newState)) //Move two wolves
         {
-            insert_dfs_node(node, newNode, newState, unique_nodes, node_stack); num_expanded++;
+            insert_dfs_node(node, newNode, newState, unique_nodes, node_stack); 
         }
     }
     return NULL; //Return null if no solution was found
@@ -428,7 +432,7 @@ Node* dfs(State start, State goal, int& num_expanded)
 **************************************************************/
 Node* iddfs(State start, State goal, int& num_expanded)
 {
-    num_expanded = 1; //We always expand the first node
+    num_expanded = 0;
     int max_depth = 0, deepest = 0; //max_depth is the iterative depth, deepest is the depth of the deepest node in each iteration
 
     stack<Node*> node_stack;  //Stack to hold next expanded nodes to check
@@ -463,6 +467,8 @@ Node* iddfs(State start, State goal, int& num_expanded)
             if(node->state == goal)
                 return node;
 
+            num_expanded++;
+
             State newState; //Container for any new state we create via moveAnimals()
 
             //If we've reached the maximum depth, skip the child additions
@@ -473,23 +479,23 @@ Node* iddfs(State start, State goal, int& num_expanded)
             //Inserts that node into the tree if it passes these cases, updates the visited nodes, the stack and increments num_expanded
             if(moveAnimals(node->state, &newState, 1, 0) && isValid(newState) && !visited(unique_nodes, newState)) //Move one chicken
             {
-                insert_iddfs_node(node, newNode, newState, unique_nodes, node_stack); num_expanded++;
+                insert_iddfs_node(node, newNode, newState, unique_nodes, node_stack); 
             }
             if(moveAnimals(node->state, &newState, 2, 0) && isValid(newState) && !visited(unique_nodes, newState)) //Move two chickens
             {
-                insert_iddfs_node(node, newNode, newState, unique_nodes, node_stack); num_expanded++;
+                insert_iddfs_node(node, newNode, newState, unique_nodes, node_stack);
             }
             if(moveAnimals(node->state, &newState, 0, 1) && isValid(newState) && !visited(unique_nodes, newState)) //Move one wolf
             {
-                insert_iddfs_node(node, newNode, newState, unique_nodes, node_stack); num_expanded++;
+                insert_iddfs_node(node, newNode, newState, unique_nodes, node_stack); 
             }
             if(moveAnimals(node->state, &newState, 1, 1) && isValid(newState) && !visited(unique_nodes, newState)) //Move one chicken and one wolf
             {
-                insert_iddfs_node(node, newNode, newState, unique_nodes, node_stack); num_expanded++;
+                insert_iddfs_node(node, newNode, newState, unique_nodes, node_stack); 
             }
             if(moveAnimals(node->state, &newState, 0, 2) && isValid(newState) && !visited(unique_nodes, newState)) //Move two wolves
             {
-                insert_iddfs_node(node, newNode, newState, unique_nodes, node_stack); num_expanded++;
+                insert_iddfs_node(node, newNode, newState, unique_nodes, node_stack);
             }
         }
 
@@ -521,7 +527,7 @@ Node* iddfs(State start, State goal, int& num_expanded)
 **************************************************************/
 Node* astar(State start, State goal, int& num_expanded)
 {
-    num_expanded = 1; //We always expand the first node
+    num_expanded = 0;
     p_queue_item q; //Structure to hold a node and priority for priority sorting in the priority queue
 
     priority_queue<p_queue_item> node_queue;  //Queue to hold next expanded nodes to check based on priority
@@ -553,6 +559,8 @@ Node* astar(State start, State goal, int& num_expanded)
         if(node->state == goal)
             return node;
 
+        num_expanded++;
+
         State newState; //Container for any new state we create via moveAnimals()
 
         //PRIORITY FROM MOST IMPORTANT TO LEAST IMPORTANT: 4,3,2,1,0
@@ -561,23 +569,23 @@ Node* astar(State start, State goal, int& num_expanded)
         //Inserts that node into the tree if it passes these cases, updates the visited nodes, the queue and increments num_expanded
         if(moveAnimals(node->state, &newState, 1, 0) && isValid(newState) && !visited(unique_nodes, newState)) //Move one chicken - PRIORITY LEVEL 1
         {
-            insert_astar_node(node, newNode, newState, unique_nodes, node_queue, 1); num_expanded++;
+            insert_astar_node(node, newNode, newState, unique_nodes, node_queue, 1); 
         }
         if(moveAnimals(node->state, &newState, 2, 0) && isValid(newState) && !visited(unique_nodes, newState)) //Move two chickens - PRIORITY LEVEL 4 (Most important)
         {
-            insert_astar_node(node, newNode, newState, unique_nodes, node_queue, 4); num_expanded++;
+            insert_astar_node(node, newNode, newState, unique_nodes, node_queue, 4); 
         }
         if(moveAnimals(node->state, &newState, 0, 1) && isValid(newState) && !visited(unique_nodes, newState)) //Move one wolf - PRIORITY LEVEL 0 (Least important)
         {
-            insert_astar_node(node, newNode, newState, unique_nodes, node_queue, 0); num_expanded++;
+            insert_astar_node(node, newNode, newState, unique_nodes, node_queue, 0); 
         }
         if(moveAnimals(node->state, &newState, 1, 1) && isValid(newState) && !visited(unique_nodes, newState)) //Move one chicken and one wolf - PRIORITY LEVEL 2
         {
-            insert_astar_node(node, newNode, newState, unique_nodes, node_queue, 2); num_expanded++;
+            insert_astar_node(node, newNode, newState, unique_nodes, node_queue, 2);
         }
         if(moveAnimals(node->state, &newState, 0, 2) && isValid(newState) && !visited(unique_nodes, newState)) //Move two wolves - PRIORITY LEVEL 3
         {
-            insert_astar_node(node, newNode, newState, unique_nodes, node_queue, 3); num_expanded++;
+            insert_astar_node(node, newNode, newState, unique_nodes, node_queue, 3);
         }
     }
     return NULL; //Return null if no solution was found
