@@ -48,6 +48,7 @@ struct Move MinimaxPlayer::MinMaxDecision(OthelloBoard* b){
 }
 struct Move MinimaxPlayer::MaxValue(OthelloBoard* b){
 	struct Move move;
+	if (TerminalState(b)) return move;
 	return move;
 }
 struct Move MinimaxPlayer::MinValue(OthelloBoard* b){

@@ -48,10 +48,10 @@ public:
     MinimaxPlayer* clone();
 
 private:
-	struct Move MinMaxDecision(OthelloBoard* b);
 	struct Move MaxValue(OthelloBoard* b);
 	struct Move MinValue(OthelloBoard* b);
-	bool TerminalState(OthelloBoard* b);
+	vector<OthelloBoard> GetSucc(OthelloBoard* b);
+	int Utility(OthelloBoard* b);
 };
 
 
