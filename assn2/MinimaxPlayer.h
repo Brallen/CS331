@@ -12,6 +12,11 @@
 #include "Player.h"
 #include <vector>
 
+struct Move{
+	int row;
+	int col;
+	int utility;
+};
 /**
  * This class represents an AI player that uses the Minimax algorithm to play the game
  * intelligently.
@@ -43,7 +48,10 @@ public:
     MinimaxPlayer* clone();
 
 private:
-
+	struct Move MinMaxDecision(OthelloBoard* b);
+	struct Move MaxValue(OthelloBoard* b);
+	struct Move MinValue(OthelloBoard* b);
+	bool TerminalState(OthelloBoard* b);
 };
 
 
