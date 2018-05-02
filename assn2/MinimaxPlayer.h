@@ -48,9 +48,9 @@ public:
     MinimaxPlayer* clone();
 
 private:
-	struct Move MaxValue(OthelloBoard* b);
-	struct Move MinValue(OthelloBoard* b);
-	vector<OthelloBoard> GetSucc(OthelloBoard* b);
+	int MaxValue(int& row, int &col, char player, OthelloBoard* b);
+	int MinValue(int& row, int &col, char player, OthelloBoard* b);
+	std::vector<OthelloBoard*> GetSucc(char player, OthelloBoard* b);
 	int Utility(OthelloBoard* b);
 };
 

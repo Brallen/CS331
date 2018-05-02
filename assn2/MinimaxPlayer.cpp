@@ -39,25 +39,33 @@ MinimaxPlayer::~MinimaxPlayer() {
 // 		v← MIN(v, MAX-VALUE(s))
 // 	return v
 void MinimaxPlayer::get_move(OthelloBoard* b, int& col, int& row) {
-    
+    if(symbol == b->get_p1_symbol()){
+			MaxValue(row,col,'X',b);
+		}else{
+			MaxValue(row,col,'O',b);
+		}
 }
-struct Move MinimaxPlayer::MinMaxDecision(OthelloBoard* b){
+int MinimaxPlayer::MaxValue(int& row, int &col, char player, OthelloBoard* b){
+	return 0;
+}
+int MinimaxPlayer::MinValue(int& row, int &col, char player, OthelloBoard* b){
+	return 0;
+}
+int MinimaxPlayer::Utility(OthelloBoard* b){
+	return b->count_score('X') - b->count_score('O');
+}
 
-	
-	return MaxValue(b);
+vector<OthelloBoard*> GetSucc(char player, OthelloBoard* b){
+	vector<OthelloBoard*> board;
+	for (int i = 0; i < 4; i++){
+		for (int j = 0; j < 4; j++){
+			if (b->is_legal_move(i, j, player)){
+				board.push_back(new OthelloBoard(*b));
+			}
+		}
+	}
 }
-struct Move MinimaxPlayer::MaxValue(OthelloBoard* b){
-	struct Move move;
-	if (TerminalState(b)) return move;
-	return move;
-}
-struct Move MinimaxPlayer::MinValue(OthelloBoard* b){
-	struct Move move;
-	return move;
-}
-bool MinimaxPlayer::TerminalState(OthelloBoard* b){
-	return b->has_legal_moves_remaining('X') || b->has_legal_moves_remaining('O');
-}
+
 MinimaxPlayer* MinimaxPlayer::clone() {
 	MinimaxPlayer* result = new MinimaxPlayer(symbol);
 	return result;
