@@ -15,7 +15,6 @@
 struct Move{
 	int row;
 	int col;
-	int utility;
 };
 /**
  * This class represents an AI player that uses the Minimax algorithm to play the game
