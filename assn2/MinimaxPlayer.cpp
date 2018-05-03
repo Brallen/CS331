@@ -109,7 +109,7 @@ int MinimaxPlayer::GetUtility(OthelloBoard b){
 	return b.count_score(b.get_p1_symbol()) - b.count_score(b.get_p2_symbol());
 }
 
-vector<std::pair<Move, OthelloBoard>> GetSucc(char player, OthelloBoard b){
+vector<std::pair<Move, OthelloBoard>> MinimaxPlayer::GetSucc(char player, OthelloBoard b){
 	vector<std::pair<Move, OthelloBoard>> board;
 	for (int i = 0; i < 4; i++){
 		for (int j = 0; j < 4; j++){
@@ -125,7 +125,7 @@ vector<std::pair<Move, OthelloBoard>> GetSucc(char player, OthelloBoard b){
 	}
 	return board;
 }
-bool IsTerminal(OthelloBoard b){
+bool MinimaxPlayer::IsTerminal(OthelloBoard b){
 	return b.has_legal_moves_remaining(b.get_p1_symbol()) || b.has_legal_moves_remaining(b.get_p2_symbol());
 }
 
