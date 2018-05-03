@@ -38,14 +38,14 @@ MinimaxPlayer::~MinimaxPlayer() {
 void MinimaxPlayer::get_move(OthelloBoard* b, int& col, int& row) {
     struct Move m;
 		int utility;
-		int min = 0x7FFFFFFF;
-		int max = 0x80000000;
+		signed int min = 99999;
+		signed int max = -99999;
 		
-		vector<std::pair<Move, OthelloBoard>> successors = GetSucc(symbol, b);
+		vector<std::pair<Move, OthelloBoard>> successors = GetSucc(symbol, *b);
 		vector<std::pair<Move, OthelloBoard>>::iterator it;
 		
 		for (it = successors.begin(); it != successors.end(); it++){
-			if (symbol == b.get_p1_symbol()){
+			if (symbol == b->get_p1_symbol()){
 				utility = MinValue(it->second);
 				if(utility >= max){
 					max = utility;
@@ -63,25 +63,70 @@ void MinimaxPlayer::get_move(OthelloBoard* b, int& col, int& row) {
 		row = m.row;
 		col = m.col;
 }
-int MinimaxPlayer::MaxValue(int& row, int &col, char player, OthelloBoard* b){
-	return 0;
-}
-int MinimaxPlayer::MinValue(int& row, int &col, char player, OthelloBoard* b){
-	return 0;
-}
-int MinimaxPlayer::Utility(OthelloBoard* b){
-	return b->count_score(b.get_p1_symbol()) - b->count_score(b.get_p2_symbol());
+
+int MinimaxPlayer::MaxValue(OthelloBoard b){
+	int utility = -99999;
+	int posibilities;
+	
+	if (IsTerminal(b)) return GetUtility(b);
+	
+	vector<std::pair<Move, OthelloBoard>> successors = GetSucc(b.get_p1_symbol(), b);
+	vector<std::pair<Move, OthelloBoard>>::iterator it;
+	
+	for (it = successors.begin(); it != successors.end(); it++){
+		posibilities = MinValue(it->second);
+		if(utility < posibilities){
+			utility = posibilities;
+		}
+	}
+	if (successors.empty()){
+		utility = MinValue(b);
+	}
+	return utility;
 }
 
-vector<OthelloBoard*> GetSucc(char player, OthelloBoard* b){
-	vector<OthelloBoard*> board;
+int MinimaxPlayer::MinValue(OthelloBoard b){
+	int utility = 99999;
+	int posibilities;
+	
+	if (IsTerminal(b)) return GetUtility(b);
+	
+	vector<std::pair<Move, OthelloBoard>> successors = GetSucc(b.get_p2_symbol(), b);
+	vector<std::pair<Move, OthelloBoard>>::iterator it;
+	
+	for (it = successors.begin(); it != successors.end(); it++){
+		posibilities = MaxValue(it->second);
+		if(utility < posibilities){
+			utility = posibilities;
+		}
+	}
+	if (successors.empty()){
+		utility = MaxValue(b);
+	}
+	return utility;
+}
+int MinimaxPlayer::GetUtility(OthelloBoard b){
+	return b.count_score(b.get_p1_symbol()) - b.count_score(b.get_p2_symbol());
+}
+
+vector<std::pair<Move, OthelloBoard>> GetSucc(char player, OthelloBoard b){
+	vector<std::pair<Move, OthelloBoard>> board;
 	for (int i = 0; i < 4; i++){
 		for (int j = 0; j < 4; j++){
-			if (b->is_legal_move(i, j, player)){
-				board.push_back(new OthelloBoard(*b));
+			if (b.is_legal_move(i, j, player)){
+				OthelloBoard newB = b;
+				Move m; 
+				m.row = i;
+				m.col = j;
+				newB.play_move(i, j, player);
+				board.push_back(std::pair<Move, OthelloBoard>(m, newB));
 			}
 		}
 	}
+	return board;
+}
+bool IsTerminal(OthelloBoard b){
+	return b.has_legal_moves_remaining(b.get_p1_symbol()) || b.has_legal_moves_remaining(b.get_p2_symbol());
 }
 
 MinimaxPlayer* MinimaxPlayer::clone() {

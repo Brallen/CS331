@@ -47,10 +47,11 @@ public:
     MinimaxPlayer* clone();
 
 private:
-	int MaxValue(int& row, int &col, char player, OthelloBoard* b);
-	int MinValue(int& row, int &col, char player, OthelloBoard* b);
-	std::vector<OthelloBoard*> GetSucc(char player, OthelloBoard* b);
-	int Utility(OthelloBoard* b);
+	int MaxValue(OthelloBoard b);
+	int MinValue(OthelloBoard b);
+	std::vector<std::pair<Move, OthelloBoard>> GetSucc(char player, OthelloBoard b);
+	int GetUtility(OthelloBoard b);
+	bool IsTerminal(OthelloBoard b);
 };
 
 
