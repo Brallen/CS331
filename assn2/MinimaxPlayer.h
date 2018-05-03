@@ -13,8 +13,8 @@
 #include <vector>
 
 struct Move{
-	int row;
 	int col;
+	int row;
 };
 /**
  * This class represents an AI player that uses the Minimax algorithm to play the game
@@ -39,6 +39,11 @@ public:
 	 * @param row Holds the return value for the row of the move
 	 */
     void get_move(OthelloBoard* b, int& col, int& row);
+    int MaxValue(OthelloBoard b);
+    int MinValue(OthelloBoard b);
+    std::vector<std::pair<Move, OthelloBoard>> GetSucc(char player, OthelloBoard b);
+    int GetUtility(OthelloBoard b);
+    bool IsTerminal(OthelloBoard b);
 
     /**
      * @return A copy of the MinimaxPlayer object
@@ -47,11 +52,6 @@ public:
     MinimaxPlayer* clone();
 
 private:
-	int MaxValue(OthelloBoard b);
-	int MinValue(OthelloBoard b);
-	std::vector<std::pair<Move, OthelloBoard>> GetSucc(char player, OthelloBoard b);
-	int GetUtility(OthelloBoard b);
-	bool IsTerminal(OthelloBoard b);
 };
 
 
